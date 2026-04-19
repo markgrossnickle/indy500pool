@@ -48,6 +48,7 @@ export default function PoolPage() {
   const [scoreboard, setScoreboard] = useState<ScoreboardEntry[]>([]);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [shareCopied, setShareCopied] = useState(false);
   const [error, setError] = useState("");
 
   // Setup state
@@ -198,12 +199,28 @@ export default function PoolPage() {
                 Code: <span className="font-mono">{pool.code}</span>
               </p>
             </div>
-            <Link
-              href={`/pool/${code}/admin`}
-              className="text-sm px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
-            >
-              Admin
-            </Link>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={async () => {
+                  const url = window.location.href;
+                  if (navigator.share) {
+                    try { await navigator.share({ text: `Join my Indy 500 Pool: ${pool.name}`, url }); return; } catch {}
+                  }
+                  await navigator.clipboard.writeText(url);
+                  setShareCopied(true);
+                  setTimeout(() => setShareCopied(false), 2000);
+                }}
+                className="text-sm px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+              >
+                {shareCopied ? "Link Copied!" : "Share Pool"}
+              </button>
+              <Link
+                href={`/pool/${code}/admin`}
+                className="text-sm px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                Admin
+              </Link>
+            </div>
           </div>
 
           {lastUpdated && (
